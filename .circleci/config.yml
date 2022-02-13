@@ -1,26 +1,43 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  build:
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+      # Use this New Image for Starting things up
+      - image: fr3akyphantom/droid-runner:latest # DO Not Change
+    environment:
+      MANIFEST_BRANCH: "android-10.0"
+      VERSION: "2.9.1" # Change as necessary
+      VENDOR: "lenovo" # Mandatory
+      CODENAME: "X306F" # Mandatory
+      FLAVOR: "eng" # Mandatory:: Input "eng" or "userdebug"
+      MAINTAINER: "PBRP Team"
+      TEST_BUILD: 'true'
+      # PB_OFFICIAL: 'true' # REQUIRED-FOR-TEAM:: Uncomment only for Stable Official builds
+      # PB_ENGLISH: 'true' # Use if necessary
+      # EXTRA_CMD: "" # OPTIONAL COMMANDS:: USE WITHIN DOUBLE-QUOTE
+      CHANGELOG: |
+        What's been done?
+        - Update done for xx
+        What's fixed?
+        - Fixed yy things
+          - Which is actually Changed by ZZ
+        And something else
+    working_directory: /home/builder/ # This MUST NOT Be Changed
     steps:
-      - checkout
+      - setup_remote_docker:
+          version: 19.03.8
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: "ALL IN REMOTE"
+          command: |
+            curl -sL https://gist.github.com/rokibhasansagar/a0dedd612279d26c472e473f2c09e64a/raw/remote_build.sh -o remote_build.sh
+            source remote_build.sh
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  version: 2
+  remote_builder:
     jobs:
-      - say-hello
+      - build:
+          filters:
+            branches:
+              only: "android-10.0-remote" # Use Appropriate Branch Name
+          context: org-global
