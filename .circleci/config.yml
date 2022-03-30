@@ -1,0 +1,43 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      # Use this New Image for Starting things up
+      - image: fr3akyphantom/droid-runner:latest # DO Not Change
+    environment:
+      MANIFEST_BRANCH: "android-10.0"
+      VERSION: "2.9.1" # Change as necessary
+      VENDOR: "lenovo" # Mandatory
+      CODENAME: "X306F" # Mandatory
+      FLAVOR: "eng" # Mandatory:: Input "eng" or "userdebug"
+      MAINTAINER: "PBRP Team"
+      TEST_BUILD: 'true'
+      # PB_OFFICIAL: 'true' # REQUIRED-FOR-TEAM:: Uncomment only for Stable Official builds
+      # PB_ENGLISH: 'true' # Use if necessary
+      # EXTRA_CMD: "" # OPTIONAL COMMANDS:: USE WITHIN DOUBLE-QUOTE
+      CHANGELOG: |
+        What's been done?
+        - Update done for xx
+        What's fixed?
+        - Fixed yy things
+          - Which is actually Changed by ZZ
+        And something else
+    working_directory: /home/builder/ # This MUST NOT Be Changed
+    steps:
+      - setup_remote_docker:
+          version: 19.03.8
+      - run:
+          name: "ALL IN REMOTE"
+          command: |
+            curl -sL https://gist.github.com/rokibhasansagar/a0dedd612279d26c472e473f2c09e64a/raw/remote_build.sh -o remote_build.sh
+            source remote_build.sh
+
+workflows:
+  version: 2
+  remote_builder:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: "android-10.0-remote" # Use Appropriate Branch Name
+          context: org-global
